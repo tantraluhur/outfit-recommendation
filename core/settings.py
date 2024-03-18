@@ -13,6 +13,10 @@ import os
 from pathlib import Path
 from datetime import timedelta
 import environ
+from google.oauth2 import service_account
+import firebase_admin
+from firebase_admin import storage
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,6 +30,20 @@ env = environ.Env(
 env_file_path = os.path.join(BASE_DIR, '.env')
 environ.Env.read_env(env_file_path)
 
+FIREBASE_CONFIG = {
+  "type": "service_account",
+  "project_id": "outfit-recs",
+  "private_key_id": "e894fc0af554c101b15a70ba23498ee27ed99272",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC2M8CSlsh0AoAi\nb9FfId2cAK4BYJhHejT3yua0U/eD6oETJooHqIvFw71VyOFcke3kEAIymlwPZQ/t\nnAzZtYzwWWfo45erUzWViE8WTsW6RSQGIueO22tR0luZ28RxLtCXBc0+sZbrAIFv\niZsnOFL430Hsx9vnpQwZyjp+8PXVjO6xOLSKLeKAeN6QCGjVEkciwgS8vtunkoPk\n7f8yj6NmSie9Bd4a3ERD6LQ/Ilh+MWYWaoU6UzgjIVN4yjezqNNP6mHEUbccRaDg\narAdGCWA29JntdZB7UvQ+AtmHxUNtYXRh3N6aYWvk1ZDJVJ5BNLtR56/TkAUbedn\n91WLhQ9ZAgMBAAECggEAEk6Ih/yyybE3Sv59hMz5dW4TYwZfwTger/0I3s/cUTqp\nMGbmvIFAq09mVoMMswk4jqSAdrF6vtM9MqHDdXEf5vBcwpIc5Z/ChQfr8QZbfe0/\ngtxT9CRzbTEGd3g/jc28iJ1nyLz9jcGAaoK4KPcoTbgvlAkQEn92A/YFQvGWtGzo\nAGka9E4Z6+BY+txpEr46DGDwgndKR8CFltl/KfFnsmpiucyQR7BLUSQrkMYorrqH\nOm9yK/S9EWzNuLCAriMh5fak9fxCxYJHG9jgWbwr9wE1aT+ri7EjywDEBoaKS7/9\nRgQVQkFv+QbvGwr48/fArOhFxbrhvVMjRoBKEKSNnwKBgQDkk5j+fa826oYZXhHA\nlWxAC/PNjediaHru8yGUY9Kq1qHUFqtlmMPpCJ6AHgH7JyGdxoDwhgVpPxggJ+WQ\nvdAKZiCiODskGWTtZwSFIjuuGqnr935tjAxiFvYI9rwyH3sOMw/MtdEEXf42K2Cc\nu8VYtTx5w+xsW/zpGX8espZDYwKBgQDMD9TNn/XdkDJuS+YcbV6UWGlLbcC4ixx6\n44pJWydNGaR8QaF2xLIGW9FQOGlgscKvI/zDOy95/VFONnr4M6mS0ydFM7l/qnMY\nWxGnco6KzhZpJtUhAb2Avv6r47rzRg3L4pr0SE3aHZnPtxCUN2lgAMMcZyggwQ61\nN+sUtZhlEwKBgHLnY6SjJ95yXMEJ0eC+/LDhkUjGygdlQE84d6vx1mg9BxLn5ndn\nKSzPQWZkL1jC3hpDPHQs2zGCHy2jALsXQCrKFiOWItzNyzewbsxCXj/ydXMCclK9\ncUgqBLqS1h5YRvLnZkzhJVaNrYormiCQH++tA96uR/5c67F+OLIE0pbDAoGBAJ3k\nXf8glyfxi+Pl3E4Anh7gbdCMQoNIOCgp6XUrD7TLc4clbR6twSXEY6fTjk3gHUhQ\n6yHQqMKWLBP9eZaUus+9i/QyuoQ6ycV9qaJLtFlYbuS7xEs+wndc0UcE9UGI4eHx\nG36Kd5qeLsYW2sAkQ+ehj1ZpxxXY611yv/WNMTZ7AoGAKnwygKUlZz2m/8sALvks\nSNio2XSB7zSTwOn0WkcehAoF05tz8bSHiNEr07DLqkRmjIPCZ8O5LoHJYq/dfY0O\nzGXmEQmT2de/CZ/BAUbsyjEChkwlVC9ln83pi+rhdEJ8cPB2Y0KAw240yTfP9tfr\n0CTE1s82R5Rj1ShuwU734gE=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-vj62h@outfit-recs.iam.gserviceaccount.com",
+  "client_id": "102025122483953003618",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-vj62h%40outfit-recs.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
+
 DEBUG = env('DEBUG')
 SECRET_KEY = env('SECRET_KEY')
 ALLOWED_HOSTS = env('ALLOWED_HOSTS')
@@ -36,6 +54,14 @@ DATABASE_NAME=env('DATABASE_NAME')
 DATABASE_USER=env('DATABASE_USER')
 DATABASE_PASSWORD=env('DATABASE_PASSWORD')
 DATABASE_HOST=env('DATABASE_HOST')
+
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+
+GS_CREDENTIALS = service_account.Credentials.from_service_account_info(FIREBASE_CONFIG)
+
+# # Configure the storage bucket
+GS_BUCKET_NAME = "outfit-recs.appspot.com"
 
 # CORS CONFIG #
 CORS_ORIGIN_ALLOW_ALL = True
@@ -67,6 +93,8 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'authentication',
+    'dataset',
+    'clothes'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -150,13 +178,12 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
-STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
+STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 

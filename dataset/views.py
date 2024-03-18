@@ -28,7 +28,7 @@ class DatasetView(APIView) :
         try :
             dataset = Dataset.objects.all()
             serializer = self.serializer(dataset, many=True)
-            return Response(prepare_success_response(serializer.data), status.HTTP_201_CREATED)
+            return Response(prepare_success_response(serializer.data), status.HTTP_200_OK)
         except APIException as e :
             return Response(prepare_error_response(str(e)), e.status_code)
         except Exception as e :

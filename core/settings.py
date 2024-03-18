@@ -14,8 +14,6 @@ from pathlib import Path
 from datetime import timedelta
 import environ
 from google.oauth2 import service_account
-import firebase_admin
-from firebase_admin import storage
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

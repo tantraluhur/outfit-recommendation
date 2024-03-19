@@ -4,6 +4,6 @@ from clothes.views import ClothesView, ClothesDetailView
 
 
 urlpatterns = [
-    path('', ClothesView.as_view()),
-    path('<int:id>/', ClothesDetailView.as_view())
+    path('<int:id>/', ClothesView.as_view()),
+    path('upload-image/<int:id>/', ClothesDetailView.as_view())
 ]

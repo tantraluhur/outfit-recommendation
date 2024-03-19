@@ -1,6 +1,8 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
+from dataset.models import Dataset
+
 def upload_to(instance, filename):
     return 'clothes/images/{filename}'.format(filename=filename)
 
@@ -11,6 +13,7 @@ class Clothes(models.Model) :
     height = models.BigIntegerField()
     name = models.CharField(max_length=120)
     image = models.ImageField(upload_to=upload_to, null=True, blank=True)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self) :
         return self.name

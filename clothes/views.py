@@ -5,13 +5,15 @@ from rest_framework.views import APIView
 
 from applibs.response import prepare_success_response, prepare_error_response, serializer_error_response
 
-from clothes.serializer import ResponseSerializer, CreateClothesSerializer, ClothesImageUploadSerializer, ClothesSerializer
+from clothes.serializer import ResponseSerializer, CreateClothesSerializer, ClothesImageUploadSerializer, ClothesSerializer, SegmentationSerializer
 from clothes.service import ClothesService
-from clothes.models import Clothes
+
+from clothes.models import Segmentation
 
 class ClothesView(APIView) :
     def __init__(self) :
         self.serializer = CreateClothesSerializer
+        self.clothes_serializer = ClothesSerializer
         self.response_serializer = ResponseSerializer
 
     def post(self, request, id) :
@@ -31,7 +33,7 @@ class ClothesView(APIView) :
     def get(self, request, id) :
         try :
             data = ClothesService.get_clothes(id)
-            serializer = self.response_serializer(data, many=True)
+            serializer = self.clothes_serializer(data, many=True)
             return Response(prepare_success_response(serializer.data), status.HTTP_200_OK)
         except APIException as e :
             return Response(prepare_error_response(str(e)), e.status_code)
@@ -40,6 +42,22 @@ class ClothesView(APIView) :
         
 class ClothesDetailView(APIView) :
 
+    def __init__(self) :
+        self.serializer =  ClothesImageUploadSerializer
+        self.clothes_serializer = ClothesSerializer
+        self.response_serializer = ResponseSerializer
+
+    def get(self, request, id) :
+        try :
+            data = ClothesService.get_clothes_detail(id)
+            serializer = self.clothes_serializer(data)
+            return Response(prepare_success_response(serializer.data), status.HTTP_200_OK)
+        except APIException as e :
+            return Response(prepare_error_response(str(e)), e.status_code)
+        except Exception as e :
+            return Response(prepare_error_response(str(e)), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class UploadImageView(APIView) :
     def __init__(self) :
         self.serializer =  ClothesImageUploadSerializer
         self.clothes_serializer = ClothesSerializer
@@ -58,11 +76,16 @@ class ClothesDetailView(APIView) :
             return Response(prepare_error_response(str(e)), e.status_code)
         except Exception as e :
             return Response(prepare_error_response(str(e)), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class SegmentationView(APIView) :
+
+    def __init__(self) :
+        self.serializer = SegmentationSerializer
 
     def get(self, request, id) :
         try :
-            data = ClothesService.get_clothes_detail(id)
-            serializer = self.response_serializer(data)
+            data = Segmentation.objects.filter(clothes__id = id)
+            serializer = self.serializer(data, many=True)
             return Response(prepare_success_response(serializer.data), status.HTTP_200_OK)
         except APIException as e :
             return Response(prepare_error_response(str(e)), e.status_code)

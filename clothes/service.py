@@ -32,22 +32,21 @@ class ClothesService(ABC):
     
     @classmethod
     def get_clothes(cls, dataset_id) :
-        data = []
-
+        # data = []
         dataset = Dataset.objects.filter(id=dataset_id).first()
         if(not dataset) :
             raise NotFoundException(f"Dataset with id {dataset_id} not exists.")
         
         clothes = Clothes.objects.filter(dataset=dataset)
-        for i in clothes :
-            segmentation = Segmentation.objects.filter(clothes=i)
-            object_data = {
-                "clothes" : i,
-                "segmentations" : segmentation
-            }
-            data.append(object_data)
+        # for i in clothes :
+        #     segmentation = Segmentation.objects.filter(clothes=i)
+        #     object_data = {
+        #         "clothes" : i,
+        #         "segmentations" : segmentation
+        #     }
+        #     data.append(object_data)
 
-        return data
+        return clothes
     
     @classmethod
     def get_clothes_detail(cls, id) :
@@ -55,12 +54,12 @@ class ClothesService(ABC):
         if(not clothes) :
             raise NotFoundException(f"Clothes with id {id} not exists.")
 
-        segmentation = Segmentation.objects.filter(clothes=clothes)
-        data = {
-            "clothes" : clothes,
-            "segmentations" : segmentation
-        }
-        return data
+        # segmentation = Segmentation.objects.filter(clothes=clothes)
+        # data = {
+        #     "clothes" : clothes,
+        #     "segmentations" : segmentation
+        # }
+        return clothes
     
     @classmethod
     def upload_image(cls, id, **kwargs) :
